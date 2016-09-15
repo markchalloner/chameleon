@@ -1,0 +1,23 @@
+{
+    "name": "markchalloner/chameleon",
+    "description": "PHP object that can be implicitly cast to other types",
+    "licence": "MIT",
+    "authors": [
+        {
+            "name": "Mark Challoner",
+            "email": "mark.a.r.challoner@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^5.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.5"
+    },
+    "autoload": {
+        "classmap": [ "src/" ]
+    },
+    "autoload-dev": {
+        "psr-4": { "Chameleon\\Tests\\": "tests/" }
+    }
+}
