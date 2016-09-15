@@ -26,14 +26,21 @@ echo gettype(!!$var).PHP_EOL;
 Chameleon as a string
 
 ``` php
-echo gettype($var.'').PHP_EOL;
+echo gettype("$var").PHP_EOL;
 ```
 
 ## Integer
 Chameleon as an integer
 
 ``` php
-echo gettype($var+1).PHP_EOL;
+echo gettype($var|0).PHP_EOL;
+```
+
+## Float
+Chameleon as a float
+
+``` php
+echo gettype($var+.0).PHP_EOL;
 ```
 
 ## Array access

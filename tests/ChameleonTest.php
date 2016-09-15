@@ -14,14 +14,14 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->name = uniqid();
+        $this->name = uniqid('x', true);
         $this->instance = new Chameleon([$this->name]);
     }
 
     public function testBoolean()
     {
         self::assertTrue(
-            is_bool($this->instance == true),
+            is_bool(!!$this->instance),
             'Instance cannot be typecast to a boolean'
         );
     }
@@ -29,7 +29,7 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
     public function testString()
     {
         self::assertTrue(
-            is_string($this->instance . ' string'),
+            is_string("$this->instance"),
             'Instance cannot be typecast to a string'
         );
     }
@@ -38,12 +38,25 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
     {
         // Handle expected PHP Notice
         set_error_handler([$this->instance, 'handleError'], E_NOTICE);
-        $int = $this->instance + 1;
+        $int = $this->instance|0;
         restore_error_handler();
 
         self::assertTrue(
             is_int($int),
             'Instance cannot be typecast to an integer'
+        );
+    }
+
+    public function testFloat()
+    {
+        // Handle expected PHP Notice
+        set_error_handler([$this->instance, 'handleError'], E_NOTICE);
+        $float = $this->instance+.0;
+        restore_error_handler();
+
+        self::assertTrue(
+            is_float($float),
+            'Instance cannot be typecast to a float'
         );
     }
 

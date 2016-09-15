@@ -1,7 +1,5 @@
 <?php
 
-use SebastianBergmann\CodeCoverage\Exception;
-
 class Chameleon implements \ArrayAccess, \Countable, \Iterator
 {
     /** @var mixed[] */
@@ -13,7 +11,7 @@ class Chameleon implements \ArrayAccess, \Countable, \Iterator
     /** @var Callable */
     private $errorHandler;
 
-    public function __construct($keys = [])
+    public function __construct(array $keys = [])
     {
         $this->errorHandler = set_error_handler([$this, 'handleError'], E_ALL);
         $this->keys = $keys;
@@ -30,7 +28,7 @@ class Chameleon implements \ArrayAccess, \Countable, \Iterator
     // Magic methods
     public static function __callStatic($name, $arguments)
     {
-        return new self(isset($arguments[0]) ? $arguments[0] : []);
+        return new self(array_key_exists(0, $arguments) ? $arguments[0] : []);
     }
 
     public function __call($name, $arguments)
@@ -126,7 +124,7 @@ class Chameleon implements \ArrayAccess, \Countable, \Iterator
     public function handleError($errorNumber, $errorString, $errorFile, $errorLine)
     {
         if (!(error_reporting() & $errorNumber)) {
-            return;
+            return false;
         }
         // Ignore type casting errors
         if (strpos($errorString, 'Chameleon could not be converted to ') !== -1) {
@@ -136,5 +134,6 @@ class Chameleon implements \ArrayAccess, \Countable, \Iterator
         if ($this->errorHandler) {
             return call_user_func($this->errorHandler, $errorNumber, $errorString, $errorFile, $errorLine);
         }
+        return false;
     }
 }
