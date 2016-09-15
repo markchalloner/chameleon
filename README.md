@@ -43,7 +43,7 @@ Chameleon can be accessed like an array and has infinite elements of type Chamel
 echo get_class($var[0]).PHP_EOL;
 ```
 
-*Note: To ensure array_key_exists returns true for **string** keys, pass the string keys into the constructor.*
+_Note: To ensure array_key_exists returns true for **string** keys, pass the string keys into the constructor._
 
 ``` php
 $var = new Chameleon([0, 'a']);
@@ -87,7 +87,7 @@ Chameleon has infinite static methods which take the `$keys` array and return ty
 get_class(Chameleon::abc([0, 'a']))
 ```
 
-*Note: Any static method can be used in place of the constructor.*
+_Note: Any static method can be used in place of the constructor._
 
 ```
 <?php
@@ -110,7 +110,7 @@ foreach ($var as $key => $value) {
 }
 ```
 
-*Note: To change the keys output in the foreach, pass the keys into the constructor.*
+_Note: To change the keys output in the foreach, pass the keys into the constructor._
 
 ``` php
 $var = new Chameleon([0, 'a']);
