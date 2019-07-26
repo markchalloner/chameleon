@@ -15,7 +15,7 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->name = uniqid('x', true);
-        $this->instance = new Chameleon([$this->name]);
+        $this->instance = new Chameleon($this->name);
     }
 
     public function testBoolean()
@@ -62,11 +62,12 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
 
     public function testArray()
     {
-        get_object_vars($this->instance);
         self::assertTrue(
             isset($this->instance[$this->name]),
             'Instance element cannot be tested with isset'
         );
+        // Access key for array_key_exists.
+        $this->instance->{$this->name};
         self::assertTrue(
             array_key_exists($this->name, $this->instance),
             'Instance element cannot be tested with array_key_exists'
@@ -93,37 +94,63 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
 
     public function testProperty()
     {
+        $instance = $this->instance->{$this->name};
         self::assertInstanceOf(
             Chameleon::class,
-            $this->instance->{$this->name},
+            $instance,
             'Instance does not have a readable property that is an instance of Chameleon'
+        );
+        self::assertTrue(
+            array_key_exists($this->name, $this->instance),
+            'Instance element cannot be tested with array_key_exists'
         );
     }
 
     public function testMethod()
     {
+        // Access key for array_key_exists.
+        $this->instance->{$this->name};
+        $instance = $this->instance->{(string)$this->name}();
         self::assertInstanceOf(
             Chameleon::class,
-            $this->instance->{(string)$this->name}(),
+            $instance,
             'Instance does not have a readable method that returns an instance of Chameleon'
         );
+        self::assertTrue(
+            array_key_exists($this->name, $instance),
+            'Instance element cannot be tested with array_key_exists'
+        );
+
     }
 
     public function testStaticMethod()
     {
+        $instance = call_user_func([Chameleon::class, "create"], ["Chameleon" => $this->name]);
         self::assertNotNull(
-            call_user_func([Chameleon::class, $this->name]),
+            $instance,
             'Class does not have a readable static method'
+        );
+        self::assertTrue(
+            array_key_exists($this->name, $instance),
+            'Instance element cannot be tested with array_key_exists'
         );
     }
 
     public function testInvoke()
     {
+        // Access key for array_key_exists.
+        $this->instance->{$this->name};
+        // Copy the instance to a local variable as we can't invoke it directly.
         $instance = $this->instance;
+        $instance = $instance();
         self::assertInstanceOf(
             Chameleon::class,
-            $instance(),
+            $instance,
             'Instance invocation does not return an instance of Chameleon'
+        );
+        self::assertTrue(
+            array_key_exists($this->name, $instance),
+            'Instance element cannot be tested with array_key_exists'
         );
     }
 
@@ -137,6 +164,8 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
 
     public function testForeach()
     {
+        // Access key for iteration.
+        $this->instance->{$this->name};
         $i = 0;
         foreach ($this->instance as $key => $value) {
             $i++;
@@ -159,11 +188,17 @@ final class ChameleonTest extends \PHPUnit_Framework_TestCase
 
     public function testClone()
     {
+        // Access key for array_key_exists.
+        $this->instance->{$this->name};
         $instance = clone $this->instance;
         self::assertInstanceOf(
             Chameleon::class,
             $instance,
             'Clone is not an instance of Chameleon'
+        );
+        self::assertTrue(
+            array_key_exists($this->name, $instance),
+            'Instance element cannot be tested with array_key_exists'
         );
     }
 

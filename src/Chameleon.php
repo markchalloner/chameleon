@@ -1,22 +1,16 @@
 <?php
 
-class Chameleon implements \ArrayAccess, \Countable, \Iterator
+class Chameleon extends \ArrayObject implements \Countable, \IteratorAggregate
 {
-    /** @var mixed[] */
-    private $keys = [];
-
-    /** @var int */
-    private $position = 0;
-
     /** @var Callable */
     private $errorHandler;
 
-    public function __construct(array $keys = [])
+    public function __construct()
     {
+        parent::__construct();
         $this->errorHandler = set_error_handler([$this, 'handleError'], E_ALL);
-        $this->keys = $keys;
-        foreach ($this->keys as $key) {
-            $this->{$key} = new self();
+        foreach (func_get_args() as $key) {
+            $this->offsetSet($key, null);
         }
     }
 
@@ -28,22 +22,21 @@ class Chameleon implements \ArrayAccess, \Countable, \Iterator
     // Magic methods
     public static function __callStatic($name, $arguments)
     {
-        return new self(array_key_exists(0, $arguments) ? $arguments[0] : []);
+        $key = "Chameleon";
+        $arguments = array_key_exists(0, $arguments) && array_key_exists($key, $arguments[0]) ?
+            (is_array($arguments[0][$key]) ? $arguments[0][$key] : [$arguments[0][$key]]) : [];
+        $reflection = new \ReflectionClass(__CLASS__);
+        return $reflection->newInstanceArgs($arguments);
     }
 
     public function __call($name, $arguments)
     {
-        return new self($this->keys);
+        return clone $this;
     }
 
     public function __invoke()
     {
-        return new self($this->keys);
-    }
-
-    public function __clone()
-    {
-        $this->reset();
+        return clone $this;
     }
 
     public function __toString()
@@ -53,71 +46,52 @@ class Chameleon implements \ArrayAccess, \Countable, \Iterator
 
     public function __isset($name)
     {
+        $this->offsetSet($name, null);
         return true;
     }
 
     public function __get($name)
     {
-        return new self($this->keys);
+        $this->offsetSet($name, null);
+        return clone $this;
+    }
+
+    public function __set($name, $value)
+    {
+        $this->offsetSet($name, null);
     }
 
     // ArrayAccess
     public function offsetExists($offset)
     {
+        $this->offsetSet($offset, null);
         return true;
     }
 
     public function offsetGet($offset)
     {
-        return new self($this->keys);
+        $this->offsetSet($offset, null);
+        return clone $this;
     }
 
     public function offsetSet($offset, $value)
     {
-    }
-
-    public function offsetUnset($offset)
-    {
+        parent::offsetSet($offset, clone $this);
     }
 
     // Countable
     public function count()
     {
-        return count($this->keys ?: [0]);
+        return parent::count() ?: 1;
     }
 
-    // Iterator
-    public function rewind()
-    {
-        $this->position = 0;
-        return new self($this->keys);
-    }
-
-    public function current()
-    {
-        return new self($this->keys);
-    }
-
-    public function key()
-    {
-        $keys = $this->keys ?: [0];
-        return $keys[$this->position];
-    }
-
-    public function next()
-    {
-        $this->position++;
-        return new self($this->keys);
-    }
-
-    public function valid()
-    {
-        return $this->position < $this->count();
-    }
-
-    public function reset()
-    {
-        $this->position = 0;
+    // IteratorAggregate
+    public function getIterator() {
+        $it = parent::getIterator();
+        if ($it->valid()) {
+            return $it;
+        }
+        return new ArrayIterator([0 => new self]);
     }
 
     // Error handling

@@ -3,10 +3,10 @@
 PHP object that can be implicitly cast to other types.
 
 ``` php
-new \Chameleon($keys = []);
+new \Chameleon(mixed $...);
 ```
 
-`mixed[] $keys` keys used by `array_key_exists` and `foreach` (values are always instances of Chameleon).
+`mixed[] ...` keys used by `array_key_exists` and `foreach` (values are always instances of Chameleon).
 
 Example:
 
@@ -50,20 +50,24 @@ Chameleon can be accessed like an array and has infinite elements of type Chamel
 echo get_class($var[0]).PHP_EOL;
 ```
 
-_Note: To ensure array_key_exists returns true for **string** keys, pass the string keys into the constructor._
+_Note: To ensure array_key_exists returns true for keys, pass them into the constructor or access them in 
+some way._
 
 ``` php
-$var = new Chameleon([0, 'a']);
-array_key_exists(0, $var); // false - not string key
-array_key_exists('a', $var); // true
-array_key_exists('b', $var); // false - not defined
+$var = new Chameleon(0);
+array_key_exists(0, $var); // true: passed in constructor
+$var->a;
+array_key_exists('a', $var); // true: key has been accessed
+$var['b'] = null;
+array_key_exists('b', $var); // true: key has been accessed
+array_key_exists('c', $var); // false
 ```
 
 ## Multi-dimensional array
 Chameleon can be accessed like an multi-dimensional array and has infinite sub-elements of type Chameleon
 
 ```php
-get_class($var[0]['abc']).PHP_EOL;
+get_class($var[0]['a']).PHP_EOL;
 ```
 
 ## Object
@@ -88,17 +92,19 @@ get_class($var->abc(0, 'a'));
 ```
 
 ## Static methods
-Chameleon has infinite static methods which take the `$keys` array and return type Chameleon
+Chameleon has infinite static methods with any number of parameters which return type Chameleon
 
 ``` php
-get_class(Chameleon::abc([0, 'a']))
+get_class(Chameleon::abc(0, 'a'))
 ```
 
-_Note: Any static method can be used in place of the constructor._
+_Note: Any static method can be used in place of the constructor and passed keys via a special array 
+argument._
 
 ```
 <?php
-$var = Chameleon::create();
+$var = Chameleon::create(["Chameleon" => [0]]);
+$var->a;
 ```
 
 ## Callable
@@ -117,10 +123,12 @@ foreach ($var as $key => $value) {
 }
 ```
 
-_Note: To change the keys output in the foreach, pass the keys into the constructor._
+_Note: To change the keys output in the foreach, pass them into the constructor or access them in some way._
 
 ``` php
-$var = new Chameleon([0, 'a']);
+$var = new Chameleon(0);
+$var->a;
+$var['b'] = null;
 ```
 
 ## Clone
